@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title> Travel Planner</title>
+  <meta name="description" content="Plan your perfect trip with our AI-powered travel planner." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles/main.css" />
+  <link rel="stylesheet" href="styles/components.css" />
+  <link rel="stylesheet" href="styles/views.css" />
+</head>
+<body>
+  <div class="app-shell">
+    <!-- Top bar -->
+    <header class="topbar">
+      <div class="container topbar__inner">
+        <div class="brand" id="brand" style="cursor:pointer">
+          <span class="brand__logo">✈</span>
+          <span>Travel Planner</span>
+        </div>
+
+        <div class="topbar__spacer"></div>
+
+        <!-- Stepper: Search → Generate → Results -->
+        <nav class="stepper" id="stepper" aria-label="Progress">
+          <div class="step is-active" data-step="1"><span class="step__dot">1</span><span>Search</span></div>
+          <div class="step__line"></div>
+          <div class="step" data-step="2"><span class="step__dot">2</span><span>Generate</span></div>
+          <div class="step__line"></div>
+          <div class="step" data-step="3"><span class="step__dot">3</span><span>Results</span></div>
+        </nav>
+
+        <div class="topbar__spacer"></div>
+
+        <div class="topbar__actions">
+          <button class="icon-btn" id="themeToggle" title="Toggle theme">🌙</button>
+          <div class="avatar">JA</div>
+        </div>
+      </div>
+    </header>
+
+    <!-- View mount point -->
+    <main>
+      <div id="app"></div>
+    </main>
+
+    <footer class="footer">
+      <div class="container footer__inner">
+        <span>Travel Planner</span>
+        <span>Weather &amp; Geocoding: Open-Meteo (live) · Flights/Hotels/AI: mock adapters</span>
+      </div>
+    </footer>
+  </div>
+
+  <script type="module" src="js/app.js"></script>
+</body>
+</html>
