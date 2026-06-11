@@ -1,0 +1,12 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <script>
+    // Redirect any deep link back to index.html, preserving the path
+    // so the SPA router can handle it on load.
+    const path = location.pathname.replace('/Travel-App', '') || '/';
+    sessionStorage.setItem('spa-redirect', path);
+    location.replace('/Travel-App/');
+  </script>
+</head>
+</html>

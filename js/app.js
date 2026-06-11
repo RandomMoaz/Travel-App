@@ -48,6 +48,10 @@ $("#brand").addEventListener("click", () => router.navigate("/"));
 // Load persisted trips into store so SearchView's subscriber gets them on first paint.
 tripStorage.allTrips().then((trips) => tripStore.setState({ savedTrips: trips }));
 
+// Handle GitHub Pages SPA redirect (404.html stores the path in sessionStorage)
+const spaRedirect = sessionStorage.getItem("spa-redirect");
+if (spaRedirect) { sessionStorage.removeItem("spa-redirect"); history.replaceState(null, "", spaRedirect); }
+
 router.start();
 
 // Expose for quick debugging in the console.
