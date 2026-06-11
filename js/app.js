@@ -3,7 +3,8 @@ import { tripStore } from "./store/trip.store.js";
 import { SearchView } from "./views/search.view.js";
 import { GenerateView } from "./views/generate.view.js";
 import { ResultsView } from "./views/result.view.js";
-import { $, el } from "./utils/utils.js";
+import { $ } from "./utils/utils.js";
+import { tripStorage } from "./utils/storage.js";
 
 const appRoot = $("#app");
 
@@ -43,6 +44,9 @@ themeBtn.addEventListener("click", () => {
 
 /* Brand click → home */
 $("#brand").addEventListener("click", () => router.navigate("/"));
+
+// Load persisted trips into store so SearchView's subscriber gets them on first paint.
+tripStorage.allTrips().then((trips) => tripStore.setState({ savedTrips: trips }));
 
 router.start();
 
