@@ -174,3 +174,14 @@ main { flex: 1; padding: 36px 0 64px; }
   .stepper .step span { display: none; }
   .step__line { width: 18px; }
 }
+
+@media (max-width: 520px) {
+  .topbar__inner { gap: 8px; }
+  .brand > span:last-child { display: none; }
+  .topbar__spacer { display: none; }
+}
+
+@media (max-width: 480px) {
+  :root { --h1: 22px; --h2: 18px; }
+  main { padding: 20px 0 40px; }
+}
