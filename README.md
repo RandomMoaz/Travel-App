@@ -1,72 +1,83 @@
-# Travel Planner
+# ✈️ Travel Planner
 
-A 3-step travel planning SPA built with pure JavaScript — no frameworks, no bundlers. Enter trip details, watch live APIs fetch weather and location data, then get a complete AI-generated travel plan with itinerary, budget, hotels, flights, and packing list.
+> A 3-step AI-powered travel planning app built with **pure JavaScript** — no frameworks, no bundlers.
+> Enter your trip details, watch live APIs fetch real weather and location data, then receive a complete personalized travel plan.
 
-## Live Demo
-
-https://randommoaz.github.io/Travel-App/
-
-## Screenshots
-
-| Search | Generate | Results |
-|--------|----------|---------|
-| _(add screenshot)_ | _(add screenshot)_ | _(add screenshot)_ |
+🔗 **Live Demo:** [randommoaz.github.io/Travel-App](https://randommoaz.github.io/Travel-App/)
 
 ---
 
-## Features
+## 📸 Screenshots
 
-- __Step 1 — Search:__ destination autocomplete, date validation, traveler counts, budget tiers, interest chips, preferences
-- __Step 2 — Generate:__ parallel API calls with a live task progress list
-- __Step 3 — Results:__ tabbed view with itinerary, top places, hotels, flights, budget breakdown, packing list, and warnings
-- __Saved Trips:__ persisted in IndexedDB (localStorage fallback), listed reactively on the search page
-- __Dark / Light theme__ with localStorage persistence
-- __Fully responsive__ down to 375px
+### 🔍 Step 1 — Search
+
+![Search Form](screenshots/search.png)
+
+### ⚙️ Step 2 — Generate
+
+![Generate Screen](screenshots/generate.png)
+
+### 🗺️ Step 3 — Results
+
+![Results Page](screenshots/results.png)
 
 ---
 
-## Project Structure
+## ✨ Features
 
-```
+- 🔍 **Step 1 — Search:** destination autocomplete, date validation, traveler counts, budget tiers, interest chips, and preferences
+- ⚙️ **Step 2 — Generate:** parallel API calls with a live task progress list
+- 🗺️ **Step 3 — Results:** tabbed view with itinerary, top places, hotels, flights, budget breakdown, packing list, and warnings
+- 🌦️ **Live Weather:** real forecast banner with 7-day outlook
+- 📍 **Map Integration:** geocoded location with static map thumbnail and OpenStreetMap link
+- 💾 **Saved Trips:** persisted in IndexedDB (localStorage fallback), listed reactively on the search page
+- 🌙 **Dark / Light theme** with localStorage persistence
+- 📱 **Fully responsive** down to 375px
+
+---
+
+## 🗂️ Project Structure
+
+```text
 js/
-  app.js                  — entry point, router wiring, theme toggle
-  config.js               — API keys and strategy flags (git-ignored)
-  models/trip.model.js    — Trip class + createTrip factory + AI prompt builder
-  store/trip.store.js     — Observable state store (Observer pattern)
-  router/router.js        — SPA router using History API
+  app.js                   — entry point, router wiring, theme toggle
+  config.js                — API keys and strategy flags (git-ignored)
+  models/trip.model.js     — Trip class + createTrip factory + AI prompt builder
+  store/trip.store.js      — Observable state store (Observer pattern)
+  router/router.js         — SPA router using History API
   services/
-    ai.service.js         — prompt builder, cache + retry-queue, strategy factory
-    weather.service.js    — Open-Meteo forecast API
-    geo.service.js        — Open-Meteo geocoding + static map helpers
-    travel.service.js     — mock flight and hotel adapters
+    ai.service.js          — prompt builder, cache + retry-queue, strategy factory
+    weather.service.js     — Open-Meteo forecast API
+    geo.service.js         — Open-Meteo geocoding + static map helpers
+    travel.service.js      — mock flight and hotel adapters
   strategies/
-    ai.strategy.js        — Mock / OpenAI / Gemini strategy classes
-  algorithms/ranking.js   — hotel scoring, flight sorting, activity filtering, place ranking
+    ai.strategy.js         — Mock / OpenAI / Gemini strategy classes
+  algorithms/ranking.js    — hotel scoring, flight sorting, activity filtering, place ranking
   structures/structures.js — TTLCache (Map-backed), RetryQueue, uniqueBy (Set-backed)
   utils/
-    utils.js              — el(), $(), debounce, toast, fmtRange, hashKey
-    validators.js         — trip form validation
-    storage.js            — IndexedDB + localStorage trip persistence
+    utils.js               — el(), $(), debounce, toast, fmtRange, hashKey
+    validators.js          — trip form validation
+    storage.js             — IndexedDB + localStorage trip persistence
   views/
-    search.view.js        — Step 1 form + saved trips section
-    generate.view.js      — Step 2 loading pipeline
-    result.view.js        — Step 3 tabbed results
+    search.view.js         — Step 1 form + saved trips section
+    generate.view.js       — Step 2 loading pipeline
+    result.view.js         — Step 3 tabbed results
 styles/
-  main.css                — tokens, layout, topbar, stepper, responsive base
-  components.css          — buttons, cards, fields, grids, chips, tabs
-  views.css               — per-view styles, weather banner, result panels
+  main.css                 — tokens, layout, topbar, stepper, responsive base
+  components.css           — buttons, cards, fields, grids, chips, tabs
+  views.css                — per-view styles, weather banner, result panels
 tests/
-  harness.js              — minimal test runner
-  run.test.js             — unit tests
+  harness.js               — minimal test runner
+  run.test.js              — unit tests
 ```
 
 ---
 
-## Design Patterns
+## 🎨 Design Patterns
 
-### Observer / PubSub
+### 👁️ Observer / PubSub
 
-`tripStore` (store/trip.store.js) holds all app state. Any module can call `tripStore.subscribe(fn)` to react to state changes. The search view uses this to re-render the saved trips list the moment a trip is saved from the results view — no manual DOM updates needed.
+`tripStore` holds all app state. Any module calls `tripStore.subscribe(fn)` to react to changes. The search view uses this to re-render the saved trips list the moment a trip is saved — no manual DOM updates needed.
 
 ```js
 const unsub = tripStore.subscribe((state) => {
@@ -75,9 +86,9 @@ const unsub = tripStore.subscribe((state) => {
 });
 ```
 
-### Factory Pattern
+### 🏭 Factory Pattern
 
-`makeAiStrategy()` in `ai.service.js` reads `CONFIG.aiStrategy` and returns the correct strategy instance. The rest of the app never imports strategy classes directly — it only calls `makeAiStrategy()`.
+`makeAiStrategy()` reads `CONFIG.aiStrategy` and returns the correct strategy instance. The rest of the app never imports strategy classes directly.
 
 ```js
 export function makeAiStrategy(which = CONFIG.aiStrategy) {
@@ -89,107 +100,106 @@ export function makeAiStrategy(which = CONFIG.aiStrategy) {
 }
 ```
 
-### Strategy Pattern
+### 🔄 Strategy Pattern
 
 Three interchangeable AI providers implement the same `generate({ payload, prompt })` interface:
 
 | Strategy | When used |
-|----------|-----------|
+| -------- | --------- |
 | `MockAiStrategy` | Default — deterministic, offline, schema-correct |
-| `OpenAiStrategy` | When `config.aiStrategy = "openai"` and a key is set |
-| `GeminiStrategy` | When `config.aiStrategy = "gemini"` and a key is set |
+| `OpenAiStrategy` | When `aiStrategy = "openai"` and a key is provided |
+| `GeminiStrategy` | When `aiStrategy = "gemini"` and a key is provided |
 
-Switch providers by changing one line in `config.js` — zero changes to the rest of the codebase.
-
----
-
-## Data Structures
-
-### Map — TTLCache (structures/structures.js)
-
-Wraps a native `Map` with a TTL expiry per entry. Used in all three services (weather, geo, AI) to avoid re-fetching identical requests within 30 minutes.
-
-### Set — interests & uniqueBy
-
-The interests selection in the search form tracks selections in a `Set` for O(1) add/delete/check. `uniqueBy()` in structures.js uses a `Set` to deduplicate any array by key.
-
-### Queue — RetryQueue (structures/structures.js)
-
-A FIFO async queue that retries failed tasks with exponential backoff (up to `config.maxRetries` attempts). Wraps the AI API call so transient failures are retried automatically.
+Switch providers by changing one line in `config.js` — zero changes elsewhere.
 
 ---
 
-## Algorithms (algorithms/ranking.js)
+## 🧱 Data Structures
 
-| Function | What it does |
-|----------|-------------|
-| `scoreHotel(hotel, budgetTier)` | Weighted score (0–1) combining rating, price fit, and review count |
-| `sortHotels(hotels, budgetTier)` | Sorts hotels by descending score for the requested budget tier |
+### 🗺️ Map — TTLCache
+
+Wraps a native `Map` with per-entry TTL expiry. Used in all services to avoid re-fetching within 30 minutes.
+
+### 🔵 Set — Interests & uniqueBy
+
+Interest selection uses a `Set` for O(1) toggle. `uniqueBy()` deduplicates any array by key using a `Set`.
+
+### 📋 Queue — RetryQueue
+
+A FIFO async queue that retries failed tasks with exponential backoff. Wraps AI API calls so transient failures are handled automatically.
+
+---
+
+## 📐 Algorithms
+
+| Function | Description |
+| -------- | ----------- |
+| `scoreHotel(hotel, budgetTier)` | Weighted score (0–1): rating × 0.5 + price fit × 0.35 + reviews × 0.15 |
+| `sortHotels(hotels, budgetTier)` | Sorts hotels by descending score for the chosen budget tier |
 | `sortFlights(flights, by)` | Sorts by price, duration, or a blended "best" score |
-| `filterActivities(activities, interests)` | Keeps only activities whose category matches the user's selected interests |
-| `rankPlaces(places, { interests, weather })` | Boosts beach/nature in warm weather, museums/history in cold or rainy conditions |
+| `filterActivities(activities, interests)` | Keeps only activities matching selected interests |
+| `rankPlaces(places, { interests, weather })` | Boosts beach/nature in warm weather; museums/history in cold or rainy conditions |
 
 ---
 
-## APIs
+## 🌐 APIs
 
-| Data | Provider | Type |
-|------|----------|------|
-| Weather forecast | [Open-Meteo](https://open-meteo.com) | Live — free, no key required |
-| Geocoding / coordinates | [Open-Meteo Geocoding](https://open-meteo.com/en/docs/geocoding-api) | Live — free, no key required |
-| Flights | Built-in mock adapter | Mock |
-| Hotels | Built-in mock adapter | Mock |
-| AI trip plan | `MockAiStrategy` by default | Mock (OpenAI / Gemini optional — see Setup) |
+| Data | Provider | Status |
+| ---- | -------- | ------ |
+| 🌦️ Weather forecast | [Open-Meteo](https://open-meteo.com) | ✅ Live — free, no key required |
+| 📍 Geocoding / coordinates | [Open-Meteo Geocoding](https://open-meteo.com/en/docs/geocoding-api) | ✅ Live — free, no key required |
+| ✈️ Flights | Built-in mock adapter | 🔧 Mock |
+| 🏨 Hotels | Built-in mock adapter | 🔧 Mock |
+| 🤖 AI trip plan | MockAiStrategy (default) | 🔧 Mock / 🔑 OpenAI & Gemini optional |
 
 ---
 
-## Setup
+## 🚀 Setup
 
 ```bash
 # 1. Clone the repo
-git clone https://github.com/your-username/Travel-App.git
+git clone https://github.com/RandomMoaz/Travel-App.git
 cd Travel-App
 
 # 2. Copy the config template
 cp config.example.js config.js
 
-# 3. (Optional) Add real AI keys in config.js and set aiStrategy
-#    aiStrategy: "openai" or "gemini"
+# 3. (Optional) Add real AI keys and set aiStrategy in config.js
 
-# 4. Serve with any static server, e.g. VS Code Live Server
-#    or: npx serve .
+# 4. Open with VS Code Live Server or any static server
+npx serve .
 ```
 
-> `config.js` is git-ignored. Never commit real API keys.
+> ⚠️ `config.js` is git-ignored. Never commit real API keys.
 
 ---
 
-## Running Tests
+## 🧪 Running Tests
 
 ```bash
 node --experimental-vm-modules tests/run.test.js
 ```
 
-Tests cover: form validators, hotel/flight ranking, activity filtering, place ranking, mock adapters, trip model, and AI prompt builder.
+Covers: form validators · hotel/flight ranking · activity filtering · place ranking · mock adapters · trip model · AI prompt builder
 
 ---
 
-## Advanced JS Concepts Applied
+## 🧠 Advanced JS Concepts Applied
 
 | Concept | Where |
-|---------|-------|
-| OOP & Modular JS | services, models, strategies, views — each in its own module |
-| Async / Await + Promise.all | `generate.view.js` — weather, flights, hotels fetched in parallel |
-| SPA + History API routing | `router/router.js` |
-| Observer / PubSub | `store/trip.store.js` + `search.view.js` subscribe |
-| Factory Pattern | `makeAiStrategy()` in `ai.service.js` |
-| Strategy Pattern | `MockAiStrategy`, `OpenAiStrategy`, `GeminiStrategy` |
-| Map | `TTLCache` in `structures/structures.js` |
-| Set | Interest selection + `uniqueBy()` |
-| Queue | `RetryQueue` with backoff in `structures/structures.js` |
-| Sorting & Filtering algorithms | `algorithms/ranking.js` |
-| Debounce | Destination autocomplete in `search.view.js` |
-| Request caching | `TTLCache` used in all services |
-| Lazy rendering | Result tab panels built on first click only |
-| Offline storage | IndexedDB + localStorage fallback in `utils/storage.js` |
-| Unit testing | `tests/run.test.js` with custom harness |
+| ------- | ----- |
+| 🧩 OOP & Modular JS | services, models, strategies, views — each in its own module |
+| ⚡ Async / Await + Promise.all | `generate.view.js` — weather, flights, hotels fetched in parallel |
+| 🔀 SPA + History API routing | `router/router.js` |
+| 👁️ Observer / PubSub | `store/trip.store.js` + `search.view.js` subscribe |
+| 🏭 Factory Pattern | `makeAiStrategy()` in `ai.service.js` |
+| 🔄 Strategy Pattern | `MockAiStrategy`, `OpenAiStrategy`, `GeminiStrategy` |
+| 🗺️ Map | `TTLCache` in `structures/structures.js` |
+| 🔵 Set | Interest selection + `uniqueBy()` |
+| 📋 Queue | `RetryQueue` with backoff in `structures/structures.js` |
+| 📊 Sorting & Filtering | `algorithms/ranking.js` |
+| ⏱️ Debounce | Destination autocomplete in `search.view.js` |
+| 💾 Request caching | `TTLCache` used in all services |
+| 🦥 Lazy rendering | Result tab panels built on first click only |
+| 📦 Offline storage | IndexedDB + localStorage fallback in `utils/storage.js` |
+| ✅ Unit testing | `tests/run.test.js` with custom harness |
