@@ -1,4 +1,4 @@
-import { el, $, $$, debounce, toast } from "../utils/utils.js";
+import { el, $, $$, debounce, toast, fmtRange } from "../utils/utils.js";
 import { tripStore } from "../store/trip.store.js";
 import { validateTrip, totalTravelers } from "../utils/validators.js";
 import { createTrip } from "../models/trip.model.js";
@@ -17,6 +17,7 @@ export function SearchView() {
       el("p", { class: "muted", text: "Tell us about your trip and preferences." }),
     ]),
     buildForm(f),
+    buildSavedSection(),
   ]);
   return root;
 }
@@ -191,4 +192,41 @@ function select(label, id, options, selected) {
   ]);
   return { node, value: () => sel.value };
 }
+function buildSavedSection() {
+  const list = el("div", { class: "saved-list" });
+  const empty = el("p", { class: "muted", style: "text-align:center;padding:20px 0;font-size:14px", text: "No saved trips yet. Generate a plan and save it!" });
+
+  const renderCards = (trips) => {
+    list.innerHTML = "";
+    empty.style.display = trips.length ? "none" : "";
+    trips.forEach((t) => {
+      const card = el("div", { class: "saved-card" }, [
+        el("div", { style: "font-weight:700;margin-bottom:4px", text: t.destination }),
+        el("div", { class: "muted", style: "font-size:13px", text: fmtRange(t.dates.from, t.dates.to) + ` · ${t.travelers.total} traveler${t.travelers.total !== 1 ? "s" : ""}` }),
+        el("div", { class: "muted", style: "font-size:12px;margin-top:6px", text: cap(t.budget.tier) + " budget" }),
+      ]);
+      card.addEventListener("click", () => {
+        tripStore.setState({ trip: t, status: "ready" });
+        router.navigate("/results");
+      });
+      list.appendChild(card);
+    });
+  };
+
+  renderCards(tripStore.getState().savedTrips);
+
+  // Observer pattern: re-render the list whenever savedTrips changes in the store.
+  // Auto-unsubscribes when the view is unmounted (element leaves the DOM).
+  const unsub = tripStore.subscribe((state) => {
+    if (!list.isConnected) { unsub(); return; }
+    renderCards(state.savedTrips);
+  });
+
+  return el("div", { class: "card card--pad", style: "margin-top:22px" }, [
+    el("h2", { style: "margin-bottom:14px;font-size:18px", text: "Saved Trips" }),
+    empty,
+    list,
+  ]);
+}
+
 const cap = (s) => s.charAt(0).toUpperCase() + s.slice(1);

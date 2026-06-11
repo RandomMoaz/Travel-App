@@ -38,6 +38,8 @@ export function ResultsView() {
 
   async function saveTrip() {
     await tripStorage.saveTrip(JSON.parse(JSON.stringify(trip)));
+    const all = await tripStorage.allTrips();
+    tripStore.setState({ savedTrips: all });
     toast("Trip saved offline ✓", "ok");
   }
   function shareTrip() {
