@@ -3,7 +3,7 @@ import { tripStore } from "../store/trip.store.js";
 import { router } from "../router/router.js";
 import { tripStorage } from "../utils/storage.js";
 import { staticMapUrl, osmLink } from "../services/geo.service.js";
-import { rankPlaces, filterActivities } from "../algorithms/ranking.js";
+import { rankPlaces } from "../algorithms/ranking.js";
 
 const TABS = ["Itinerary", "Top Places", "Hotels", "Flights", "Budget", "Packing List", "Warnings"];
 
