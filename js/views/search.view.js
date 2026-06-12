@@ -5,6 +5,7 @@ import { createTrip } from "../models/trip.model.js";
 import { geocode } from "../services/geo.service.js";
 import { router } from "../router/router.js";
 import { CONFIG } from "../config.js";
+import { tripStorage } from "../utils/storage.js";
 
 const INTERESTS = ["food", "shopping", "museums", "adventure", "nature", "beach", "history", "nightlife", "family-friendly"];
 
@@ -50,7 +51,11 @@ function buildForm(f) {
     } catch { suggestions.style.display = "none"; }
   }, CONFIG.debounceMs);
   destInput.addEventListener("input", (e) => { if (e.target.value.trim().length >= 2) runSearch(e.target.value); else suggestions.style.display = "none"; });
-  document.addEventListener("click", (e) => { if (!destWrap.contains(e.target)) suggestions.style.display = "none"; });
+  const hideOnOutsideClick = (e) => {
+    if (!destWrap.isConnected) { document.removeEventListener("click", hideOnOutsideClick); return; }
+    if (!destWrap.contains(e.target)) suggestions.style.display = "none";
+  };
+  document.addEventListener("click", hideOnOutsideClick);
 
   // Dates
   const startInput = el("input", { class: "input", type: "date", id: "startDate", value: f.startDate });
@@ -90,9 +95,11 @@ function buildForm(f) {
     });
     interestWrap.appendChild(chip);
   });
-  const interests = el("div", { style: "margin-bottom:22px" }, [
+  const interestsError = el("div", { class: "field__error", id: "interests", text: "Please select at least one interest." });
+  const interests = el("div", { class: "field", style: "margin-bottom:22px" }, [
     el("label", { class: "section-label" }, [document.createTextNode("Interests "), el("span", { class: "field__hint", text: "(Select all that apply)" })]),
     interestWrap,
+    interestsError,
   ]);
 
   // Preferences
@@ -200,10 +207,18 @@ function buildSavedSection() {
     list.innerHTML = "";
     empty.style.display = trips.length ? "none" : "";
     trips.forEach((t) => {
+      const deleteBtn = el("button", { class: "btn btn--secondary", style: "padding:4px 10px;font-size:12px;margin-top:8px", text: "Delete" });
+      deleteBtn.addEventListener("click", async (e) => {
+        e.stopPropagation();
+        await tripStorage.deleteTrip(t.id);
+        const all = await tripStorage.allTrips();
+        tripStore.setState({ savedTrips: all });
+      });
       const card = el("div", { class: "saved-card" }, [
         el("div", { style: "font-weight:700;margin-bottom:4px", text: t.destination }),
         el("div", { class: "muted", style: "font-size:13px", text: fmtRange(t.dates.from, t.dates.to) + ` · ${t.travelers.total} traveler${t.travelers.total !== 1 ? "s" : ""}` }),
         el("div", { class: "muted", style: "font-size:12px;margin-top:6px", text: cap(t.budget.tier) + " budget" }),
+        deleteBtn,
       ]);
       card.addEventListener("click", () => {
         tripStore.setState({ trip: t, status: "ready" });

@@ -29,7 +29,7 @@ export async function getFlights({ destination, preferences }) {
     id: `f${i}`,
     airline: label,
     from: "JFK",
-    to: "CDG",
+    to: destination || "CDG",
     depart: `0${6 + i}:30`,
     arrive: `1${i}:45`,
     durationMin: 480 + i * 25,

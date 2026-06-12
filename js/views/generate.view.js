@@ -8,10 +8,10 @@ import { generatePlan } from "../services/ai.service.js";
 import { sortHotels, sortFlights } from "../algorithms/ranking.js";
 
 const TASKS = [
+  { id: "location", title: "Getting location details", sub: "Map, coordinates & local info", icon: "📍" },
   { id: "weather", title: "Fetching weather data", sub: "Real-time forecast for your dates", icon: "🌦️" },
   { id: "flights", title: "Finding best flights", sub: "Searching for available flights", icon: "✈️" },
   { id: "hotels", title: "Finding top hotels", sub: "Best stays for your budget", icon: "🏨" },
-  { id: "location", title: "Getting location details", sub: "Map, coordinates & local info", icon: "📍" },
   { id: "ai", title: "Asking AI to craft your plan", sub: "This may take a few seconds…", icon: "✨" },
 ];
 

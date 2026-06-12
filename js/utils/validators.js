@@ -20,6 +20,10 @@ export function validateTrip(form) {
   const children = Number(form.children);
   if (!Number.isInteger(children) || children < 0) errors.children = "Children cannot be negative.";
 
+  if (!form.interests || form.interests.length === 0) {
+    errors.interests = "Please select at least one interest.";
+  }
+
   if (form.budget === "custom") {
     const amt = Number(form.customBudget);
     if (!amt || amt <= 0) errors.customBudget = "Enter a valid custom budget.";

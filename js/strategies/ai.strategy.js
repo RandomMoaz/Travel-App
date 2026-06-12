@@ -36,12 +36,15 @@ export class MockAiStrategy {
     const dailyPlan = Array.from({ length: days }, (_, i) => {
       const dayDate = new Date(payload.dates.from);
       dayDate.setDate(dayDate.getDate() + i);
-      const picks = interests.slice(0, 3);
-      const times = ["09:00 AM", "12:30 PM", "03:00 PM", "06:00 PM"];
+      // Rotate starting interest each day so activities vary across the trip
+      const offset = i % interests.length;
+      const rotated = [...interests.slice(offset), ...interests.slice(0, offset)];
+      const picks = rotated.slice(0, 4);
+      const times = ["09:00 AM", "12:30 PM", "03:00 PM", "07:00 PM"];
       const activities = picks.map((k, idx) => {
         const a = POOL[k] || { t: "Explore the city", d: "Discover hidden gems.", img: "city" };
         return {
-          time: times[idx] || "07:00 PM",
+          time: times[idx],
           title: i === 0 && idx === 0 ? `Arrive & ${a.t.toLowerCase()}` : a.t,
           description: a.d,
           image: `https://picsum.photos/seed/${a.img}${i}${idx}/120/96`,
