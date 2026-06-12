@@ -38,8 +38,12 @@ function buildForm(f) {
   const runSearch = debounce(async (q) => {
     try {
       const results = await geocode(q);
-      if (!results.length) { suggestions.style.display = "none"; return; }
       suggestions.innerHTML = "";
+      if (!results.length) {
+        suggestions.appendChild(el("div", { class: "quick-row", style: "padding:11px 14px;color:var(--muted)", text: "No destinations found." }));
+        suggestions.style.display = "block";
+        return;
+      }
       results.forEach((r) => {
         suggestions.appendChild(el("div", {
           class: "quick-row", style: "padding:11px 14px;cursor:pointer;border-bottom:1px solid var(--border)",
@@ -218,6 +222,7 @@ function buildSavedSection() {
         el("div", { style: "font-weight:700;margin-bottom:4px", text: t.destination }),
         el("div", { class: "muted", style: "font-size:13px", text: fmtRange(t.dates.from, t.dates.to) + ` · ${t.travelers.total} traveler${t.travelers.total !== 1 ? "s" : ""}` }),
         el("div", { class: "muted", style: "font-size:12px;margin-top:6px", text: cap(t.budget.tier) + " budget" }),
+        t.plan?.summary ? el("div", { style: "font-size:12px;margin-top:8px;color:var(--text);opacity:.75;line-clamp:2;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical", text: t.plan.summary }) : null,
         deleteBtn,
       ]);
       card.addEventListener("click", () => {
