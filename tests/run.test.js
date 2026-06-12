@@ -4,6 +4,7 @@ import { sortHotels, sortFlights, filterActivities, rankPlaces, scoreHotel } fro
 import { getHotels, getFlights } from "../js/services/travel.service.js";
 import { MockAiStrategy } from "../js/strategies/ai.strategy.js";
 import { createTrip, buildAiPrompt } from "../js/models/trip.model.js";
+import { TTLCache, RetryQueue, uniqueBy } from "../js/structures/structures.js";
 
 const future = (d) => { const t = new Date(); t.setDate(t.getDate() + d); return t.toISOString().slice(0, 10); };
 
@@ -13,7 +14,7 @@ test("validator: rejects end date before start date", () => {
   ok(!valid); ok(errors.endDate);
 });
 test("validator: accepts a well-formed trip", () => {
-  const { valid } = validateTrip({ destination: "Paris", startDate: future(5), endDate: future(10), adults: 2, children: 1, budget: "medium" });
+  const { valid } = validateTrip({ destination: "Paris", startDate: future(5), endDate: future(10), adults: 2, children: 1, budget: "medium", interests: ["food"] });
   ok(valid);
 });
 test("validator: requires custom amount when budget is custom", () => {
@@ -75,6 +76,67 @@ test("ai(mock): returns the full schema with one day per date", async () => {
   ["summary", "dailyPlan", "budget", "packingList", "warnings", "bestPlaces"].forEach((k) => ok(k in plan));
   eq(plan.dailyPlan.length, 3); // 3-day inclusive range
   ok(plan.budget.breakdown.length > 0);
+});
+
+/* ---------- TTLCache ---------- */
+test("TTLCache: returns value before expiry", () => {
+  const cache = new TTLCache(5000);
+  cache.set("k", "v");
+  eq(cache.get("k"), "v");
+});
+test("TTLCache: returns undefined after TTL expires", async () => {
+  const cache = new TTLCache(10); // 10ms TTL
+  cache.set("x", 42);
+  await new Promise((r) => setTimeout(r, 20));
+  eq(cache.get("x"), undefined);
+});
+test("TTLCache: has() returns false for expired key", async () => {
+  const cache = new TTLCache(10);
+  cache.set("y", "hello");
+  await new Promise((r) => setTimeout(r, 20));
+  ok(!cache.has("y"));
+});
+test("TTLCache: set() returns the stored value", () => {
+  const cache = new TTLCache(5000);
+  eq(cache.set("k", 99), 99);
+});
+
+/* ---------- RetryQueue ---------- */
+test("RetryQueue: resolves immediately on success", async () => {
+  const q = new RetryQueue(2);
+  const result = await q.enqueue(() => Promise.resolve("done"));
+  eq(result, "done");
+});
+test("RetryQueue: retries a failing task and eventually resolves", async () => {
+  const q = new RetryQueue(2);
+  let attempts = 0;
+  const result = await q.enqueue(() => {
+    attempts++;
+    if (attempts < 2) return Promise.reject(new Error("fail"));
+    return Promise.resolve("ok");
+  });
+  eq(result, "ok");
+  eq(attempts, 2);
+});
+test("RetryQueue: rejects after max retries are exhausted", async () => {
+  const q = new RetryQueue(1);
+  let caught = false;
+  await q.enqueue(() => Promise.reject(new Error("always fails"))).catch(() => { caught = true; });
+  ok(caught);
+});
+
+/* ---------- uniqueBy ---------- */
+test("uniqueBy: removes duplicates by key", () => {
+  const items = [{ id: 1 }, { id: 2 }, { id: 1 }];
+  eq(uniqueBy(items, (i) => i.id).length, 2);
+});
+test("uniqueBy: preserves first occurrence of each key", () => {
+  const items = [{ id: 1, v: "a" }, { id: 1, v: "b" }];
+  eq(uniqueBy(items, (i) => i.id)[0].v, "a");
+});
+test("uniqueBy: returns all items when all keys are unique", () => {
+  const items = [{ id: 1 }, { id: 2 }, { id: 3 }];
+  eq(uniqueBy(items, (i) => i.id).length, 3);
 });
 
 await report();

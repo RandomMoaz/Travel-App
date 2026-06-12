@@ -3,7 +3,7 @@ import { tripStore } from "../store/trip.store.js";
 import { router } from "../router/router.js";
 import { tripStorage } from "../utils/storage.js";
 import { staticMapUrl, osmLink } from "../services/geo.service.js";
-import { rankPlaces } from "../algorithms/ranking.js";
+import { rankPlaces, filterActivities } from "../algorithms/ranking.js";
 
 const TABS = ["Itinerary", "Top Places", "Hotels", "Flights", "Budget", "Packing List", "Warnings"];
 
@@ -99,7 +99,7 @@ export function ResultsView() {
 function renderPanel(name, trip) {
   const plan = trip.plan;
   switch (name) {
-    case "Itinerary": return itineraryPanel(plan);
+    case "Itinerary": return itineraryPanel(plan, trip.interests);
     case "Top Places": return placesPanel(trip);
     case "Hotels": return hotelsPanel(trip);
     case "Flights": return flightsPanel(trip);
@@ -110,16 +110,17 @@ function renderPanel(name, trip) {
   }
 }
 
-function itineraryPanel(plan) {
+function itineraryPanel(plan, interests = []) {
   const dayList = el("div", { class: "day-tabs" });
   const content = el("div", {});
   const render = (i) => {
     [...dayList.children].forEach((n, idx) => n.classList.toggle("is-active", idx === i));
     const d = plan.dailyPlan[i];
+    const activities = interests.length ? filterActivities(d.activities, interests) : d.activities;
     content.innerHTML = "";
     content.appendChild(el("h3", { text: `Day ${d.day}`, style: "margin-bottom:2px" }));
     content.appendChild(el("div", { class: "muted", style: "font-size:13px;margin-bottom:12px", text: d.label }));
-    d.activities.forEach((a) => {
+    (activities.length ? activities : d.activities).forEach((a) => {
       content.appendChild(el("div", { class: "itin-item" }, [
         el("div", { class: "itin-item__time", text: a.time }),
         el("div", { class: "itin-item__body" }, [

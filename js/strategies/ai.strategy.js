@@ -47,6 +47,7 @@ export class MockAiStrategy {
           time: times[idx],
           title: i === 0 && idx === 0 ? `Arrive & ${a.t.toLowerCase()}` : a.t,
           description: a.d,
+          category: k,
           image: `https://picsum.photos/seed/${a.img}${i}${idx}/120/96`,
         };
       });
