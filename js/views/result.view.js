@@ -4,6 +4,7 @@ import { router } from "../router/router.js";
 import { tripStorage } from "../utils/storage.js";
 import { staticMapUrl, osmLink } from "../services/geo.service.js";
 import { rankPlaces, filterActivities } from "../algorithms/ranking.js";
+import { downloadTripPdf } from "../utils/pdf.js";
 
 const TABS = ["Itinerary", "Top Places", "Hotels", "Flights", "Budget", "Packing List", "Warnings"];
 
@@ -32,6 +33,7 @@ export function ResultsView() {
     ]),
     el("div", { class: "results-head__actions" }, [
       el("button", { class: "btn btn--secondary", html: "♡ Save Trip", onClick: saveTrip }),
+      el("button", { class: "btn btn--secondary", html: "⬇ Download PDF", onClick: downloadPdf }),
       el("button", { class: "btn btn--secondary", html: "↗ Share", onClick: shareTrip }),
     ]),
   ]);
@@ -41,6 +43,10 @@ export function ResultsView() {
     const all = await tripStorage.allTrips();
     tripStore.setState({ savedTrips: all });
     toast("Trip saved offline ✓", "ok");
+  }
+  function downloadPdf() {
+    toast("Preparing PDF… choose “Save as PDF” in the print dialog", "");
+    downloadTripPdf(trip);
   }
   function shareTrip() {
     const text = `My trip to ${trip.destination}: ${plan.summary}`;
